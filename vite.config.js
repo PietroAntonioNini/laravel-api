@@ -23,5 +23,12 @@ export default defineConfig({
             '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
             '~resources': '/resources/'
         }
-    }
+    },
+    build: {
+        manifest: true,
+        outDir: 'public/build',
+        rollupOptions: {
+            input: 'resources/js/app.js',
+        },
+    },
 });
