@@ -15,7 +15,7 @@
     return [
         'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage/*'],
         'allowed_methods' => ['*'],
-        'allowed_origins' => ['https://main-pietroantonionini.netlify.app'],  // Aggiungi l'URL del tuo front-end
+        'allowed_origins' => ['*'],  // Aggiungi l'URL del tuo front-end
         'allowed_origins_patterns' => [],
         'allowed_headers' => ['*'],
         'exposed_headers' => [],
