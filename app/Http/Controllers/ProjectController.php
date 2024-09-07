@@ -48,7 +48,6 @@ class ProjectController extends Controller
         if ($request->hasFile('image')) {
 
             $img_path = Storage::disk('public')->put('imagePro', $request->image);
-            dd($request->image);
             $newProject['image'] = $img_path;
 
         }
