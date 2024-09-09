@@ -46,20 +46,19 @@ class ProjectController extends Controller
         $newProject = new Project();
 
         if ($request->hasFile('image')) {
+            // Carica l'immagine su Google Drive
+            $filePath = $request->file('image')->getRealPath();
+            $imageUrl = $this->uploadFileToDrive($filePath);  // Usa il metodo per caricare su Google Drive
 
-            $img_path = Storage::disk('public')->put('imagePro', $request->image);
-            $newProject['image'] = $img_path;
-
+            // Salva l'URL dell'immagine di Google Drive nel database
+            $newProject['image'] = $imageUrl;
         }
 
         $newProject->fill($request->all());
-
-        // salviamo lo slug
-        $newProject->slug = Str::slug($request->name);
-
+        $newProject->slug = Str::slug($request->name); // Genera lo slug
         $newProject->save();
 
-        $newProject->technologies()->attach($request->technologies);
+        $newProject->technologies()->attach($request->technologies); // Associa le tecnologie
 
         return redirect()->route('admin.projects.index');
     }
@@ -94,18 +93,18 @@ class ProjectController extends Controller
         $project->fill($request->all());
 
         if ($request->hasFile('image')) {
+            // Carica la nuova immagine su Google Drive
+            $filePath = $request->file('image')->getRealPath();
+            $imageUrl = $this->uploadFileToDrive($filePath);
 
-            $img_path = Storage::disk('public')->put('imagePro', $request->image);
-            $project['image'] = $img_path;
-
+            // Salva il nuovo URL dell'immagine di Google Drive
+            $project['image'] = $imageUrl;
         }
 
-        // aggiorno lo slug
-        $project->slug = Str::slug($request->name);
-
+        $project->slug = Str::slug($request->name); // Aggiorna lo slug
         $project->save();
 
-        $project->technologies()->sync($request->technologies);
+        $project->technologies()->sync($request->technologies); // Aggiorna le tecnologie associate
 
         return redirect()->route('admin.projects.show', $project);
     }
@@ -120,5 +119,32 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('admin.projects.index');
+    }
+
+    private function uploadFileToDrive($filePath)
+    {
+        // Ottieni un access token valido
+        $accessToken = app(GoogleController::class)->getAccessToken();
+
+        if ($accessToken) {
+            $client = new \Google_Client();
+            $client->setAccessToken($accessToken);
+
+            $driveService = new \Google_Service_Drive($client);
+            $file = new \Google_Service_Drive_DriveFile();
+            $file->setName(basename($filePath));
+
+            $content = file_get_contents($filePath);
+            $createdFile = $driveService->files->create($file, [
+                'data' => $content,
+                'mimeType' => mime_content_type($filePath),
+                'uploadType' => 'multipart'
+            ]);
+
+            // Restituisci l'URL pubblico del file caricato
+            return 'https://drive.google.com/uc?id=' . $createdFile->id;
+        }
+
+        return null; // Ritorna null se il caricamento fallisce
     }
 }
