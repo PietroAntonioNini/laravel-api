@@ -25,7 +25,7 @@ class GoogleController extends Controller
             // Aggiorna il .env o memorizza il refresh token in modo sicuro
             // Puoi usare un pacchetto per modificare dinamicamente il file .env oppure memorizzarlo in un DB
             // Per esempio:
-            // file_put_contents(base_path('.env'), 'GOOGLE_DRIVE_REFRESH_TOKEN='.$refreshToken.PHP_EOL, FILE_APPEND);
+            file_put_contents(base_path('.env'), 'GOOGLE_DRIVE_REFRESH_TOKEN='.$refreshToken.PHP_EOL, FILE_APPEND);
 
             return redirect()->route('dashboard')->with('success', 'Google Drive collegato con successo!');
         }
