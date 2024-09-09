@@ -22,7 +22,10 @@ class GoogleController extends Controller
 
             if (isset($token['refresh_token'])) {
                 $refreshToken = $token['refresh_token'];
-
+                
+                // Debug: Visualizza il refresh token
+                dd($token);
+                
                 // Salva il token nel database
                 GoogleToken::updateOrCreate(
                     ['token_type' => 'google_drive'],
@@ -31,10 +34,11 @@ class GoogleController extends Controller
                         'refresh_token' => $refreshToken
                     ]
                 );
-
+            
                 return redirect()->route('dashboard')->with('success', 'Google Drive collegato con successo!');
             } else {
-                return redirect()->route('dashboard')->with('error', 'Refresh token non trovato.');
+                // Debug: Mostra un errore se il refresh token non è presente
+                dd('Refresh token non trovato', $token);
             }
         }
 
