@@ -8,6 +8,9 @@ use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Google_Client;
+use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
 
 // importo la libreria Str per la gestione delle stringhe
 use Illuminate\Support\Str;
@@ -127,12 +130,18 @@ class ProjectController extends Controller
         $accessToken = app(GoogleController::class)->getAccessToken();
 
         if ($accessToken) {
-            $client = new \Google_Client();
+            $client = new Google_Client();
             $client->setAccessToken($accessToken);
 
-            $driveService = new \Google_Service_Drive($client);
-            $file = new \Google_Service_Drive_DriveFile();
+            $driveService = new Google_Service_Drive($client);
+            $file = new Google_Service_Drive_DriveFile();
             $file->setName(basename($filePath));
+
+            // Recupera l'ID della cartella dal file .env
+            $folderId = env('GOOGLE_DRIVE_FOLDER_ID');
+
+            // Aggiungi l'ID della cartella nel campo "parents"
+            $file->setParents([$folderId]);
 
             $content = file_get_contents($filePath);
             $createdFile = $driveService->files->create($file, [
