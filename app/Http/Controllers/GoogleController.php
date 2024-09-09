@@ -102,6 +102,12 @@ class GoogleController extends Controller
             $file = new Google_Service_Drive_DriveFile();
             $file->setName(basename($filePath));
 
+            // Recupera l'ID della cartella dal file .env
+            $folderId = env('GOOGLE_DRIVE_FOLDER_ID');
+            
+            // Aggiungi l'ID della cartella nel campo "parents"
+            $file->setParents([$folderId]);
+
             $content = file_get_contents($filePath);
             $driveService->files->create($file, [
                 'data' => $content,
