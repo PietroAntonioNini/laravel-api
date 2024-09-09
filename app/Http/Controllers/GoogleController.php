@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Google_Client;
+use App\Models\GoogleToken;
 
 class GoogleController extends Controller
 {
@@ -19,15 +20,22 @@ class GoogleController extends Controller
         if ($request->has('code')) {
             $token = $client->fetchAccessTokenWithAuthCode($request->input('code'));
 
-            // Salva il token di aggiornamento nel file .env o nel database
-            $refreshToken = $token['refresh_token'];
+            if (isset($token['refresh_token'])) {
+                $refreshToken = $token['refresh_token'];
 
-            // Aggiorna il .env o memorizza il refresh token in modo sicuro
-            // Puoi usare un pacchetto per modificare dinamicamente il file .env oppure memorizzarlo in un DB
-            // Per esempio:
-            file_put_contents(base_path('.env'), 'GOOGLE_DRIVE_REFRESH_TOKEN='.$refreshToken.PHP_EOL, FILE_APPEND);
+                // Salva il token nel database
+                GoogleToken::updateOrCreate(
+                    ['token_type' => 'google_drive'],
+                    [
+                        'access_token' => $token['access_token'],
+                        'refresh_token' => $refreshToken
+                    ]
+                );
 
-            return redirect()->route('dashboard')->with('success', 'Google Drive collegato con successo!');
+                return redirect()->route('dashboard')->with('success', 'Google Drive collegato con successo!');
+            } else {
+                return redirect()->route('dashboard')->with('error', 'Refresh token non trovato.');
+            }
         }
 
         // Se c'è un errore
