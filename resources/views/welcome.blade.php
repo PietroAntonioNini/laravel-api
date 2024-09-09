@@ -14,6 +14,8 @@
             Welcome to Laravel+Bootstrap 5
         </h1>
 
+        <a href="https://accounts.google.com/o/oauth2/auth?client_id={{ env('GOOGLE_DRIVE_CLIENT_ID') }}&redirect_uri={{ env('GOOGLE_DRIVE_REDIRECT_URI') }}&response_type=code&scope=https://www.googleapis.com/auth/drive.file&access_type=offline">Collega Google Drive</a>
+
         <p class="col-md-8 fs-4">This a preset package with Bootstrap 5 views for laravel projects including laravel breeze/blade. It works from laravel 9.x to the latest release 10.x</p>
         <a href="https://packagist.org/packages/pacificdev/laravel_9_preset" class="btn btn-primary btn-lg" type="button">Documentation</a>
     </div>

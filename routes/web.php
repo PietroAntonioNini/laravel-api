@@ -6,6 +6,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TechnologyController;
 use App\Http\Controllers\TypeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/oauth2callback', [GoogleController::class, 'handleGoogleDriveCallback']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
