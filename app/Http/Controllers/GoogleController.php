@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Google_Client;
 use App\Models\GoogleToken;
+use Google_Client;
+use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
 
 class GoogleController extends Controller
 {
@@ -57,18 +59,32 @@ class GoogleController extends Controller
             $client = new Google_Client();
             $client->setClientId(env('GOOGLE_DRIVE_CLIENT_ID'));
             $client->setClientSecret(env('GOOGLE_DRIVE_CLIENT_SECRET'));
-            $client->setAccessToken(['refresh_token' => $token->refresh_token]);
 
-            // Ottieni un nuovo access token usando il refresh token
-            $newAccessToken = $client->fetchAccessTokenWithRefreshToken();
+            // Imposta manualmente l'access_token e il refresh_token dal database
+            $client->setAccessToken([
+                'access_token' => $token->access_token,  // Recupera l'access token dal database
+                'refresh_token' => $token->refresh_token, // Recupera il refresh token dal database
+                'expires_in' => 3600 // opzionale, puoi omettere se non ti serve
+            ]);
 
-            // Aggiorna l'access_token nel database
-            $token->update(['access_token' => $newAccessToken['access_token']]);
+            // Verifica se l'access_token è ancora valido
+            if ($client->isAccessTokenExpired()) {
+                // Se l'access token è scaduto, usiamo il refresh token per ottenerne uno nuovo
+                $newAccessToken = $client->fetchAccessTokenWithRefreshToken();
 
-            return $newAccessToken['access_token'];
+                // Aggiorna il nuovo access token nel database
+                $token->update([
+                    'access_token' => $newAccessToken['access_token'],  // Aggiorna il nuovo access token
+                ]);
+
+                return $newAccessToken['access_token'];  // Restituisci il nuovo access token
+            }
+
+            // Se l'access_token non è scaduto, restituiscilo
+            return $token->access_token;
         }
 
-        return null; // Se non è disponibile un token valido
+        return null;  // Se il token non esiste nel database, ritorna null
     }
 
     /**
@@ -82,8 +98,8 @@ class GoogleController extends Controller
             $client = new Google_Client();
             $client->setAccessToken($accessToken);
 
-            $driveService = new \Google_Service_Drive($client);
-            $file = new \Google_Service_Drive_DriveFile();
+            $driveService = new Google_Service_Drive($client);
+            $file = new Google_Service_Drive_DriveFile();
             $file->setName(basename($filePath));
 
             $content = file_get_contents($filePath);
