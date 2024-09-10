@@ -13,7 +13,7 @@
     */
 
     return [
-        'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage/*'],
+        'paths' => ['api/*', 'sanctum/csrf-cookie', 'storage/*', 'oauth2callback'],
         'allowed_methods' => ['*'],
         'allowed_origins' => ['*'],  // Aggiungi l'URL del tuo front-end
         'allowed_origins_patterns' => [],
