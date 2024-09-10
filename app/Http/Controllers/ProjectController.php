@@ -151,7 +151,7 @@ class ProjectController extends Controller
             ]);
 
             // Restituisci l'URL pubblico del file caricato
-            return 'https://drive.google.com/uc?id=' . $createdFile->id;
+            return $createdFile->id;
         }
 
         return null; // Ritorna null se il caricamento fallisce

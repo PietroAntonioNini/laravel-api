@@ -7,6 +7,7 @@ use App\Http\Controllers\TechnologyController;
 use App\Http\Controllers\TypeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleController;
+use Illuminate\Support\Facades\Http;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+//rotta per il refresh-token di google cloud
 Route::get('/oauth2callback', [GoogleController::class, 'handleGoogleDriveCallback']);
+
+//proxy per passare le img da google drive al front-end
+Route::get('/proxy-image/{fileId}', function($fileId) {
+    $url = "https://drive.google.com/uc?export=view&id={$fileId}";
+    $response = Http::get($url);
+
+    return response($response->body(), 200)
+        ->header('Content-Type', $response->header('Content-Type'));
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
